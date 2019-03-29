@@ -1,0 +1,46 @@
+<div style="display:table-cell;">
+  <div class="btn-group" id="{{FilterID}}">
+      <button type="button" class="btn btn-light btn-sm filter-icon" (click)="showFilter($event)">
+          <i class="fa fa-filter fa-lg" aria-hidden="true"></i>
+      </button>
+      <button type="button" class="btn btn-light btn-sm filter-caption" (click)="showFilter($event)">
+          <ng-content></ng-content>
+      </button>
+  </div>
+
+
+  <dx-popup width="252"
+            height="325"
+            [showTitle]="false"
+            [dragEnabled]="false"
+            [resizeEnabled]="true"
+            closeOnOutsideClick="true"
+            [position]="MenuPosition"
+            [visible]="IsVisible"
+            (onShowing)="onPopupShowing($event)"
+            (onHidden)="popupHiding($event)">
+      <div *dxTemplate="let data of 'content'">
+          <div *ngIf="!additionalFilterDataSource" style="position:absolute;top:150px;left:80px;"><i class="fa fa-spinner fa-spin fa-lg"></i>&nbsp;Loading...</div>
+          <dx-list #list *ngIf="additionalFilterDataSource" [dataSource]="additionalFilterDataSource"
+                   selectionMode="all"
+                   selectAllMode="allPages"
+                   [showSelectionControls]="true"
+                   [searchEnabled]="true"
+                   searchMode="contains"                     
+                   [(selectedItemKeys)]="selectedItemKeys">
+
+          </dx-list>
+
+      </div>
+      <dxi-toolbar-item toolbar="bottom"
+                        location="after"
+                        widget="dxButton"
+                        [options]="applyFilterButtonOptions">
+      </dxi-toolbar-item>
+      <dxi-toolbar-item toolbar="bottom"
+                        location="after"
+                        widget="dxButton"
+                        [options]="cancelButtonOptions">
+      </dxi-toolbar-item>
+  </dx-popup>
+</div>

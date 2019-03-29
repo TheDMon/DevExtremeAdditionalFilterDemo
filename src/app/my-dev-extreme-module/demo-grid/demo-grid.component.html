@@ -1,0 +1,41 @@
+<div class="container">
+<div>
+  <additional-filter-button 
+  FilterID="FirstName"
+  AdditionalFilterDataField="FirstName"
+  [DataGrid]="dataGrid"
+  [AdditionalFiltersDictionary]="additionalFilterDictionary">
+    First Name Filter Button
+  </additional-filter-button>
+</div>
+<dx-data-grid id="gridContainer"
+    [dataSource]="datasource"
+    [remoteOperations]="false"
+    [allowColumnReordering]="true"
+    [rowAlternationEnabled]="true"
+    [showBorders]="true">
+
+    <dxo-header-filter [visible]="true"></dxo-header-filter>
+    <dxo-sorting mode="single"></dxo-sorting>
+
+    <dxi-column dataField="ID" caption="ID">
+            <dxo-header-filter [allowSearch]="true"></dxo-header-filter>
+    </dxi-column>
+
+        <dxi-column dataField="FirstName" caption="First Name">
+            <dxo-header-filter [allowSearch]="true"></dxo-header-filter>
+        </dxi-column>
+
+        <dxi-column dataField="LastName" caption="Last Name">
+            <dxo-header-filter [allowSearch]="true"></dxo-header-filter>
+        </dxi-column>
+
+      <dxi-column dataField="Role" caption="Role">
+          <dxo-header-filter [allowSearch]="true"></dxo-header-filter>
+      </dxi-column>
+
+      <dxi-column dataField="Experience" caption="Experience">
+        <dxo-header-filter [allowSearch]="true"></dxo-header-filter>
+    </dxi-column>
+  </dx-data-grid>
+</div>
