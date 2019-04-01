@@ -1,8 +1,8 @@
 import { Component, OnInit, OnChanges, Input, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
 import { DxDataGridComponent } from 'devextreme-angular';
-import { AdditionalFilter } from '../../models/additional-filter';
 import { AdditionalFilterService } from '../../services/additional-filter.service';
 import * as $ from 'jquery';
+import { AdditionalFilter } from '../../models/additional-filter';
 
 @Component({
     selector: 'additional-filter-button',
@@ -14,10 +14,8 @@ export class AdditionalFilterButtonComponent implements OnInit, OnChanges {
     public IsVisible: boolean = false;
     public MenuPosition: any;
 
-    @Input() FilterID: string;
     @Input() AdditionalFilterDataField: string;
     @Input() DataGrid: DxDataGridComponent;
-    @Input() AdditionalFiltersDictionary: AdditionalFilter[] = []; // don't want this to come as input
     @Input() IsDataMultiValued: boolean = false;
     @Input() MultiValueDelimeter: string = ",";
     @Output() onOKButtonClicked: EventEmitter<any> = new EventEmitter<any>();
@@ -50,7 +48,8 @@ export class AdditionalFilterButtonComponent implements OnInit, OnChanges {
     applyFilter(): void {
         if (this.IsDataMultiValued) {
             this.filterExprValue = [];
-            if (this.selectedItemKeys.length > 0 && this.selectedItemKeys.length != this.additionalFilterDataSource.length) {
+            if (this.selectedItemKeys.length > 0 
+                && (this.additionalFilterDataSource == undefined || this.selectedItemKeys.length != this.additionalFilterDataSource.length)) {
                 this.resetCalculatedFilterExpr();
                 this.selectedItemKeys.forEach((item: any, index: number) => {
                     this.calculateFilterExpr(item);
@@ -63,7 +62,8 @@ export class AdditionalFilterButtonComponent implements OnInit, OnChanges {
         } else {
 
             this.filterExprValue = [];
-            if (this.selectedItemKeys.length > 0 && this.selectedItemKeys.length != this.additionalFilterDataSource.length) {
+            if (this.selectedItemKeys.length > 0 
+                && (this.additionalFilterDataSource == undefined || this.selectedItemKeys.length != this.additionalFilterDataSource.length)) {
                 this.selectedItemKeys.forEach((item: any, index: number) => {
                     item = item == '(Blanks)' ? null : item;
                     this.filterExprValue.push([this.AdditionalFilterDataField, "=", item]);
@@ -82,21 +82,28 @@ export class AdditionalFilterButtonComponent implements OnInit, OnChanges {
         //Console.log(this.AdditionalFiltersDictionary);
     }
 
+    applyInitialFilter(selectedItems: string[] | number[]): void{
+        setTimeout(() => {
+            this.selectedItemKeys = selectedItems;
+            this.applyFilter();
+        });
+    }
+
     showFilter(e: any) {
         this.IsVisible = true;
         this.MenuPosition = {
             my: "top",
             at: "bottom",
-            of: "#" + this.FilterID,
+            of: "#" + this.AdditionalFilterDataField,
             collision: "fit"
         };
     }
 
     getCombinedAdditionalFilterExpr(): any[] | null {
         var combinedExpr: any[] = [];        
-        this._additionalFilterService.getDictionary().forEach((item: any, index: number) => {
+        this._additionalFilterService.getFilterDictionary().forEach((item: any, index: number) => {
             combinedExpr.push(item.filterExpr);
-            if (index < this._additionalFilterService.getDictionary().length - 1) {
+            if (index < this._additionalFilterService.getFilterDictionary().length - 1) {
                 combinedExpr.push("and");
             }
         });
@@ -114,59 +121,29 @@ export class AdditionalFilterButtonComponent implements OnInit, OnChanges {
     }
 
     setAdditionalFilterButtonStyle(): void {
-        if (this._additionalFilterService.getDictionary().find(item => { return item.dataField === this.AdditionalFilterDataField; }) != undefined) {
-            $("#" + this.FilterID).find(".filter-icon").toggleClass("filter-active", true);
+        if (this._additionalFilterService.getFilterDictionary().find(item => { return item.dataField === this.AdditionalFilterDataField; }) != undefined) {
+            $("#" + this.AdditionalFilterDataField).find(".filter-icon").toggleClass("filter-active", true);
             this.onFilterStateChanged.emit(true);
         } else {
-            $("#" + this.FilterID).find(".filter-icon").toggleClass("filter-active", false);
+            $("#" + this.AdditionalFilterDataField).find(".filter-icon").toggleClass("filter-active", false);
             this.onFilterStateChanged.emit(false);
         }
     }
 
     // maintaining dictionary to store already applied additional filters with their filter expression and selection
     maintainAdditionalFiltersDictionaryValue() {
-        const addlFilter = {
+        const addlFilter: AdditionalFilter = {
             dataField: this.AdditionalFilterDataField,
             filterExpr: this.filterExprValue,
             selectedItemKeys: this.selectedItemKeys
         };
 
-        this._additionalFilterService.maintainDictionary(addlFilter);
-
-        
-        // var additionalFilterItem = this.AdditionalFiltersDictionary.find(item => {
-        //     return item.dataField === this.AdditionalFilterDataField;
-        // });
-
-        // if (additionalFilterItem != undefined) {
-        //     if (this.filterExprValue.length > 0) {
-        //         additionalFilterItem.filterExpr = this.filterExprValue;
-        //         additionalFilterItem.selectedItemKeys = this.selectedItemKeys;
-        //     } else {
-        //         var pos = this.AdditionalFiltersDictionary.indexOf(additionalFilterItem);
-        //         if (pos > -1) {
-        //             this.AdditionalFiltersDictionary.splice(pos, 1);
-        //         }
-        //     }
-        // } else {
-        //     if (this.filterExprValue.length > 0) {
-        //         this.AdditionalFiltersDictionary.push(
-        //             {
-                        
-        //                 dataField: this.AdditionalFilterDataField,
-        //                 filterExpr: this.filterExprValue,
-        //                 selectedItemKeys: this.selectedItemKeys
-        //             }
-        //         );
-        //     }
-        // }
-
-        //Console.log("maintainAdditionalFiltersDictionaryValue", this.AdditionalFiltersDictionary);
+        this._additionalFilterService.maintainFilterDictionary(addlFilter);
     }
 
     getSelectedItemKeys() {
         this.selectedItemKeys = [];
-        this._additionalFilterService.getDictionary().forEach(item => {
+        this._additionalFilterService.getFilterDictionary().forEach(item => {
             if (this.AdditionalFilterDataField === item.dataField) {
                 this.selectedItemKeys = item.selectedItemKeys;
             }
@@ -179,7 +156,7 @@ export class AdditionalFilterButtonComponent implements OnInit, OnChanges {
      */
     getCombinedButTheCurrentAdditionalFilterExpr(): any[] | null {
         var combinedExpr: any[] = [];
-        this._additionalFilterService.getDictionary().forEach((item: any, index: number) => {
+        this._additionalFilterService.getFilterDictionary().forEach((item: any, index: number) => {
             if (this.AdditionalFilterDataField !== item.dataField) {
                 if (combinedExpr.length > 0) {
                     combinedExpr.push("and");

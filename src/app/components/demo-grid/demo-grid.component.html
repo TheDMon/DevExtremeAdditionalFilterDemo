@@ -1,19 +1,16 @@
 <div class="container">
 <div>
-  <additional-filter-button 
-  FilterID="FirstName"
+  <additional-filter-button #myFilter
   AdditionalFilterDataField="FirstName"
-  [DataGrid]="dataGrid"
-  [AdditionalFiltersDictionary]="additionalFilterDictionary">
+  [DataGrid]="dataGrid">
     First Name Filter Button
   </additional-filter-button>
-  <additional-filter-button 
-  FilterID="LastName"
+  <additional-filter-button
   AdditionalFilterDataField="LastName"
-  [DataGrid]="dataGrid"
-  [AdditionalFiltersDictionary]="additionalFilterDictionary">
+  [DataGrid]="dataGrid">
     Last Name Filter Button
   </additional-filter-button>
+  <button type="button" class="btn btn-light btn-sm" (click)="clearFirstName()">Clear First Name Filter</button>
 </div>
 <dx-data-grid id="gridContainer"
     [dataSource]="datasource"

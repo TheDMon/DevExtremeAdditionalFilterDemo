@@ -7,15 +7,15 @@ export class AdditionalFilterService {
 
   constructor() { }
 
-  getDictionary(): AdditionalFilter[] {
+  getFilterDictionary(): AdditionalFilter[] {
     return this._additionalFilterDictionary;
   }
 
-  maintainDictionary(additionalFilterObject: AdditionalFilter): void {
+  maintainFilterDictionary(additionalFilterObject: AdditionalFilter): void {
     var additionalFilterItem = this._additionalFilterDictionary.find(item => {
         return item.dataField === additionalFilterObject.dataField;
     });
-
+    // if an entry is already present update the item otherwise insert the item in the dictionary
     if (additionalFilterItem != undefined) {
         if (additionalFilterObject.filterExpr.length > 0) {
             additionalFilterItem.filterExpr = additionalFilterObject.filterExpr;
@@ -31,8 +31,6 @@ export class AdditionalFilterService {
             this._additionalFilterDictionary.push(additionalFilterObject);
         }
     }
-
-    //Console.log("maintainAdditionalFiltersDictionaryValue", this.AdditionalFiltersDictionary);
   }
   
 
