@@ -7,6 +7,13 @@
   [AdditionalFiltersDictionary]="additionalFilterDictionary">
     First Name Filter Button
   </additional-filter-button>
+  <additional-filter-button 
+  FilterID="LastName"
+  AdditionalFilterDataField="LastName"
+  [DataGrid]="dataGrid"
+  [AdditionalFiltersDictionary]="additionalFilterDictionary">
+    Last Name Filter Button
+  </additional-filter-button>
 </div>
 <dx-data-grid id="gridContainer"
     [dataSource]="datasource"

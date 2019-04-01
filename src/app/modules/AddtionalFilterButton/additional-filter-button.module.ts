@@ -5,6 +5,7 @@ import {
   DxPopupModule,
   DxListModule
  } from 'devextreme-angular';
+import { AdditionalFilterService } from './services/additional-filter.service';
 
 @NgModule({
   declarations: [ 
@@ -17,6 +18,9 @@ import {
   ],
   exports: [
     AdditionalFilterButtonComponent
+  ],
+  providers: [
+    AdditionalFilterService
   ]
 })
 export class AdditionalFilterButtonModule { }

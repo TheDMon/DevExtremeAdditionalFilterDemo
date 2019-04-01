@@ -1,5 +1,7 @@
-import { Component, ViewChild, OnInit, OnChanges, Input, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, OnChanges, Input, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
 import { DxDataGridComponent } from 'devextreme-angular';
+import { AdditionalFilter } from '../../models/additional-filter';
+import { AdditionalFilterService } from '../../services/additional-filter.service';
 import * as $ from 'jquery';
 
 @Component({
@@ -15,7 +17,7 @@ export class AdditionalFilterButtonComponent implements OnInit, OnChanges {
     @Input() FilterID: string;
     @Input() AdditionalFilterDataField: string;
     @Input() DataGrid: DxDataGridComponent;
-    @Input() AdditionalFiltersDictionary: any[] = [];
+    @Input() AdditionalFiltersDictionary: AdditionalFilter[] = []; // don't want this to come as input
     @Input() IsDataMultiValued: boolean = false;
     @Input() MultiValueDelimeter: string = ",";
     @Output() onOKButtonClicked: EventEmitter<any> = new EventEmitter<any>();
@@ -27,7 +29,7 @@ export class AdditionalFilterButtonComponent implements OnInit, OnChanges {
     public cancelButtonOptions: any;
     public filterExprValue: any[] = [];
 
-    constructor() {
+    constructor(private _additionalFilterService: AdditionalFilterService) {
         this.applyFilterButtonOptions = {
             text: "OK",
             onClick: (e: any) => {
@@ -91,10 +93,10 @@ export class AdditionalFilterButtonComponent implements OnInit, OnChanges {
     }
 
     getCombinedAdditionalFilterExpr(): any[] | null {
-        var combinedExpr: any[] = [];
-        this.AdditionalFiltersDictionary.forEach((item: any, index: number) => {
+        var combinedExpr: any[] = [];        
+        this._additionalFilterService.getDictionary().forEach((item: any, index: number) => {
             combinedExpr.push(item.filterExpr);
-            if (index < this.AdditionalFiltersDictionary.length - 1) {
+            if (index < this._additionalFilterService.getDictionary().length - 1) {
                 combinedExpr.push("and");
             }
         });
@@ -112,7 +114,7 @@ export class AdditionalFilterButtonComponent implements OnInit, OnChanges {
     }
 
     setAdditionalFilterButtonStyle(): void {
-        if (this.AdditionalFiltersDictionary.find(item => { return item.dataField === this.AdditionalFilterDataField; }) != undefined) {
+        if (this._additionalFilterService.getDictionary().find(item => { return item.dataField === this.AdditionalFilterDataField; }) != undefined) {
             $("#" + this.FilterID).find(".filter-icon").toggleClass("filter-active", true);
             this.onFilterStateChanged.emit(true);
         } else {
@@ -123,38 +125,48 @@ export class AdditionalFilterButtonComponent implements OnInit, OnChanges {
 
     // maintaining dictionary to store already applied additional filters with their filter expression and selection
     maintainAdditionalFiltersDictionaryValue() {
-        var additionalFilterItem = this.AdditionalFiltersDictionary.find(item => {
-            return item.dataField === this.AdditionalFilterDataField;
-        });
+        const addlFilter = {
+            dataField: this.AdditionalFilterDataField,
+            filterExpr: this.filterExprValue,
+            selectedItemKeys: this.selectedItemKeys
+        };
 
-        if (additionalFilterItem != undefined) {
-            if (this.filterExprValue.length > 0) {
-                additionalFilterItem.filterExpr = this.filterExprValue;
-                additionalFilterItem.selectedItemKeys = this.selectedItemKeys;
-            } else {
-                var pos = this.AdditionalFiltersDictionary.indexOf(additionalFilterItem);
-                if (pos > -1) {
-                    this.AdditionalFiltersDictionary.splice(pos, 1);
-                }
-            }
-        } else {
-            if (this.filterExprValue.length > 0) {
-                this.AdditionalFiltersDictionary.push(
-                    {
-                        dataField: this.AdditionalFilterDataField,
-                        filterExpr: this.filterExprValue,
-                        selectedItemKeys: this.selectedItemKeys
-                    }
-                );
-            }
-        }
+        this._additionalFilterService.maintainDictionary(addlFilter);
+
+        
+        // var additionalFilterItem = this.AdditionalFiltersDictionary.find(item => {
+        //     return item.dataField === this.AdditionalFilterDataField;
+        // });
+
+        // if (additionalFilterItem != undefined) {
+        //     if (this.filterExprValue.length > 0) {
+        //         additionalFilterItem.filterExpr = this.filterExprValue;
+        //         additionalFilterItem.selectedItemKeys = this.selectedItemKeys;
+        //     } else {
+        //         var pos = this.AdditionalFiltersDictionary.indexOf(additionalFilterItem);
+        //         if (pos > -1) {
+        //             this.AdditionalFiltersDictionary.splice(pos, 1);
+        //         }
+        //     }
+        // } else {
+        //     if (this.filterExprValue.length > 0) {
+        //         this.AdditionalFiltersDictionary.push(
+        //             {
+                        
+        //                 dataField: this.AdditionalFilterDataField,
+        //                 filterExpr: this.filterExprValue,
+        //                 selectedItemKeys: this.selectedItemKeys
+        //             }
+        //         );
+        //     }
+        // }
 
         //Console.log("maintainAdditionalFiltersDictionaryValue", this.AdditionalFiltersDictionary);
     }
 
     getSelectedItemKeys() {
         this.selectedItemKeys = [];
-        this.AdditionalFiltersDictionary.forEach(item => {
+        this._additionalFilterService.getDictionary().forEach(item => {
             if (this.AdditionalFilterDataField === item.dataField) {
                 this.selectedItemKeys = item.selectedItemKeys;
             }
@@ -167,7 +179,7 @@ export class AdditionalFilterButtonComponent implements OnInit, OnChanges {
      */
     getCombinedButTheCurrentAdditionalFilterExpr(): any[] | null {
         var combinedExpr: any[] = [];
-        this.AdditionalFiltersDictionary.forEach((item: any, index: number) => {
+        this._additionalFilterService.getDictionary().forEach((item: any, index: number) => {
             if (this.AdditionalFilterDataField !== item.dataField) {
                 if (combinedExpr.length > 0) {
                     combinedExpr.push("and");
