@@ -1,5 +1,4 @@
 import { Component, ViewChild, OnInit, OnChanges, Input, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
-import DataSource from 'devextreme/data/data_source';
 import { DxDataGridComponent } from 'devextreme-angular';
 import * as $ from 'jquery';
 

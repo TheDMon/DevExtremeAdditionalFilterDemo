@@ -3,17 +3,21 @@ import { NgModule } from '@angular/core';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { MyDevExtremeModuleModule } from './my-dev-extreme-module/my-dev-extreme-module.module';
+import { AdditionalFilterButtonModule } from './modules/AddtionalFilterButton/additional-filter-button.module';
+import { DemoGridComponent } from './components/demo-grid/demo-grid.component';
+import { DxDataGridModule} from 'devextreme-angular';
 
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    DemoGridComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    MyDevExtremeModuleModule
+    AdditionalFilterButtonModule,
+    DxDataGridModule
   ],
   providers: [],
   bootstrap: [AppComponent]
