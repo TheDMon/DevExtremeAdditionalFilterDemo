@@ -5,21 +5,25 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AdditionalFilterButtonModule } from './modules/AddtionalFilterButton/additional-filter-button.module';
 import { DemoGridComponent } from './components/demo-grid/demo-grid.component';
-import { DxDataGridModule} from 'devextreme-angular';
+import { DxDataGridModule, DxTreeListModule} from 'devextreme-angular';
+import { TreeListComponent } from './components/tree-list/tree-list.component';
+import { AdditionalFilterService } from './modules/AddtionalFilterButton/services/additional-filter.service';
 
 
 @NgModule({
   declarations: [
     AppComponent,
-    DemoGridComponent
+    DemoGridComponent,
+    TreeListComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     AdditionalFilterButtonModule,
-    DxDataGridModule
+    DxDataGridModule,
+    DxTreeListModule
   ],
-  providers: [],
+  providers: [ ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

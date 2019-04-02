@@ -1,25 +1,25 @@
-<div class="container">
-    <p>
-        <a [routerLink]="['/treelist']">Go to Tree list Demo</a>
-      </p>
+<p>
+  <a [routerLink]="['/demogrid']">Go to Data Grid Demo</a>
+</p>
 <div>
   <additional-filter-button #myFilter
   AdditionalFilterDataField="FirstName"
-  [DataControl]="dataGrid">
+  [DataControl]="treelist">
     First Name Filter Button
   </additional-filter-button>
   <additional-filter-button
   AdditionalFilterDataField="LastName"
-  [DataControl]="dataGrid">
+  [DataControl]="treelist">
     Last Name Filter Button
   </additional-filter-button>
-  <button type="button" class="btn btn-light btn-sm" (click)="clearFirstName()">Clear First Name Filter</button>
 </div>
-<dx-data-grid id="gridContainer"
-    [dataSource]="datasource"
-    [remoteOperations]="false"
-    [allowColumnReordering]="true"
-    [rowAlternationEnabled]="true"
+<dx-tree-list #demoTreeList
+    [dataSource]="dataSource"
+    id="demoTreeList"
+    keyExpr="ID"
+    parentIdExpr="ParentID"
+    [columnAutoWidth]="true"
+    [wordWrapEnabled]="true"
     [showBorders]="true">
 
     <dxo-header-filter [visible]="true"></dxo-header-filter>
@@ -44,5 +44,5 @@
       <dxi-column dataField="Experience" caption="Experience">
         <dxo-header-filter [allowSearch]="true"></dxo-header-filter>
     </dxi-column>
-  </dx-data-grid>
-</div>
+
+  </dx-tree-list>
