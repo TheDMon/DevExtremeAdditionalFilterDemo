@@ -1,6 +1,8 @@
-import { Component, ViewChild, OnInit, OnChanges, Input, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
-import { DxDataGridComponent } from 'devextreme-angular';
+import { Component, OnInit, OnDestroy, Input, Output, EventEmitter, ViewEncapsulation, ChangeDetectorRef  } from '@angular/core';
+import { DxDataGridComponent, DxTreeListComponent } from 'devextreme-angular';
+import { AdditionalFilterService } from '../../services/additional-filter.service';
 import * as $ from 'jquery';
+import { AdditionalFilter } from '../../models/additional-filter';
 
 @Component({
     selector: 'additional-filter-button',
@@ -8,26 +10,28 @@ import * as $ from 'jquery';
     styleUrls: ['./additional-filter-button.component.css'],
     encapsulation: ViewEncapsulation.Emulated
 })
-export class AdditionalFilterButtonComponent implements OnInit, OnChanges {
+export class AdditionalFilterButtonComponent implements OnInit, OnDestroy {
     public IsVisible: boolean = false;
     public MenuPosition: any;
 
-    @Input() FilterID: string;
     @Input() AdditionalFilterDataField: string;
-    @Input() DataGrid: DxDataGridComponent;
-    @Input() AdditionalFiltersDictionary: any[] = [];
+    @Input() DataControl: DxDataGridComponent | DxTreeListComponent; // earlier variable name was DataGrid
     @Input() IsDataMultiValued: boolean = false;
     @Input() MultiValueDelimeter: string = ",";
     @Output() onOKButtonClicked: EventEmitter<any> = new EventEmitter<any>();
     @Output() onFilterStateChanged: EventEmitter<boolean> = new EventEmitter<boolean>();
 
+    public dataControlId: string;
     public selectedItemKeys: any[] = [];
     public additionalFilterDataSource: any[];
     public applyFilterButtonOptions: any;
     public cancelButtonOptions: any;
     public filterExprValue: any[] = [];
 
-    constructor() {
+    constructor(
+        private _additionalFilterService: AdditionalFilterService,
+        private _changeDetector: ChangeDetectorRef
+        ) {
         this.applyFilterButtonOptions = {
             text: "OK",
             onClick: (e: any) => {
@@ -48,7 +52,8 @@ export class AdditionalFilterButtonComponent implements OnInit, OnChanges {
     applyFilter(): void {
         if (this.IsDataMultiValued) {
             this.filterExprValue = [];
-            if (this.selectedItemKeys.length > 0 && this.selectedItemKeys.length != this.additionalFilterDataSource.length) {
+            if (this.selectedItemKeys.length > 0 
+                && (this.additionalFilterDataSource == undefined || this.selectedItemKeys.length != this.additionalFilterDataSource.length)) {
                 this.resetCalculatedFilterExpr();
                 this.selectedItemKeys.forEach((item: any, index: number) => {
                     this.calculateFilterExpr(item);
@@ -61,7 +66,8 @@ export class AdditionalFilterButtonComponent implements OnInit, OnChanges {
         } else {
 
             this.filterExprValue = [];
-            if (this.selectedItemKeys.length > 0 && this.selectedItemKeys.length != this.additionalFilterDataSource.length) {
+            if (this.selectedItemKeys.length > 0 
+                && (this.additionalFilterDataSource == undefined || this.selectedItemKeys.length != this.additionalFilterDataSource.length)) {
                 this.selectedItemKeys.forEach((item: any, index: number) => {
                     item = item == '(Blanks)' ? null : item;
                     this.filterExprValue.push([this.AdditionalFilterDataField, "=", item]);
@@ -74,10 +80,17 @@ export class AdditionalFilterButtonComponent implements OnInit, OnChanges {
 
         this.maintainAdditionalFiltersDictionaryValue();
         this.setAdditionalFilterButtonStyle();
-        var gridDataSource = this.DataGrid.instance.getDataSource();
+        var gridDataSource = this.DataControl.instance.getDataSource();
         gridDataSource.filter(this.getCombinedAdditionalFilterExpr());
         gridDataSource.load();
         //Console.log(this.AdditionalFiltersDictionary);
+    }
+
+    applyInitialFilter(selectedItems: string[] | number[]): void{
+        setTimeout(() => {
+            this.selectedItemKeys = selectedItems;
+            this.applyFilter();
+        });
     }
 
     showFilter(e: any) {
@@ -85,16 +98,16 @@ export class AdditionalFilterButtonComponent implements OnInit, OnChanges {
         this.MenuPosition = {
             my: "top",
             at: "bottom",
-            of: "#" + this.FilterID,
+            of: "#" + this.AdditionalFilterDataField,
             collision: "fit"
         };
     }
 
     getCombinedAdditionalFilterExpr(): any[] | null {
-        var combinedExpr: any[] = [];
-        this.AdditionalFiltersDictionary.forEach((item: any, index: number) => {
+        var combinedExpr: any[] = [];        
+        this._additionalFilterService.getFiltersFromDictionary(this.dataControlId).forEach((item: any, index: number) => {
             combinedExpr.push(item.filterExpr);
-            if (index < this.AdditionalFiltersDictionary.length - 1) {
+            if (index < this._additionalFilterService.getFiltersFromDictionary(this.dataControlId).length - 1) {
                 combinedExpr.push("and");
             }
         });
@@ -105,56 +118,36 @@ export class AdditionalFilterButtonComponent implements OnInit, OnChanges {
         this.filterExprValue = [];
         this.maintainAdditionalFiltersDictionaryValue();
 
-        var gridDataSource = this.DataGrid.instance.getDataSource();
+        var gridDataSource = this.DataControl.instance.getDataSource();
         gridDataSource.filter(this.getCombinedAdditionalFilterExpr());
         gridDataSource.load();
         this.setAdditionalFilterButtonStyle();
     }
 
     setAdditionalFilterButtonStyle(): void {
-        if (this.AdditionalFiltersDictionary.find(item => { return item.dataField === this.AdditionalFilterDataField; }) != undefined) {
-            $("#" + this.FilterID).find(".filter-icon").toggleClass("filter-active", true);
+        if (this._additionalFilterService.getFiltersFromDictionary(this.dataControlId).find(item => { return item.dataField === this.AdditionalFilterDataField; }) != undefined) {
+            $("#" + this.AdditionalFilterDataField).find(".filter-icon").toggleClass("filter-active", true);
             this.onFilterStateChanged.emit(true);
         } else {
-            $("#" + this.FilterID).find(".filter-icon").toggleClass("filter-active", false);
+            $("#" + this.AdditionalFilterDataField).find(".filter-icon").toggleClass("filter-active", false);
             this.onFilterStateChanged.emit(false);
         }
     }
 
     // maintaining dictionary to store already applied additional filters with their filter expression and selection
     maintainAdditionalFiltersDictionaryValue() {
-        var additionalFilterItem = this.AdditionalFiltersDictionary.find(item => {
-            return item.dataField === this.AdditionalFilterDataField;
-        });
+        const addlFilter: AdditionalFilter = {
+            dataField: this.AdditionalFilterDataField,
+            filterExpr: this.filterExprValue,
+            selectedItemKeys: this.selectedItemKeys
+        };
 
-        if (additionalFilterItem != undefined) {
-            if (this.filterExprValue.length > 0) {
-                additionalFilterItem.filterExpr = this.filterExprValue;
-                additionalFilterItem.selectedItemKeys = this.selectedItemKeys;
-            } else {
-                var pos = this.AdditionalFiltersDictionary.indexOf(additionalFilterItem);
-                if (pos > -1) {
-                    this.AdditionalFiltersDictionary.splice(pos, 1);
-                }
-            }
-        } else {
-            if (this.filterExprValue.length > 0) {
-                this.AdditionalFiltersDictionary.push(
-                    {
-                        dataField: this.AdditionalFilterDataField,
-                        filterExpr: this.filterExprValue,
-                        selectedItemKeys: this.selectedItemKeys
-                    }
-                );
-            }
-        }
-
-        //Console.log("maintainAdditionalFiltersDictionaryValue", this.AdditionalFiltersDictionary);
+        this._additionalFilterService.maintainFiltersInDictionary(this.dataControlId, addlFilter);
     }
 
     getSelectedItemKeys() {
         this.selectedItemKeys = [];
-        this.AdditionalFiltersDictionary.forEach(item => {
+        this._additionalFilterService.getFiltersFromDictionary(this.dataControlId).forEach(item => {
             if (this.AdditionalFilterDataField === item.dataField) {
                 this.selectedItemKeys = item.selectedItemKeys;
             }
@@ -167,7 +160,7 @@ export class AdditionalFilterButtonComponent implements OnInit, OnChanges {
      */
     getCombinedButTheCurrentAdditionalFilterExpr(): any[] | null {
         var combinedExpr: any[] = [];
-        this.AdditionalFiltersDictionary.forEach((item: any, index: number) => {
+        this._additionalFilterService.getFiltersFromDictionary(this.dataControlId).forEach((item: any, index: number) => {
             if (this.AdditionalFilterDataField !== item.dataField) {
                 if (combinedExpr.length > 0) {
                     combinedExpr.push("and");
@@ -181,7 +174,7 @@ export class AdditionalFilterButtonComponent implements OnInit, OnChanges {
 
     resetCalculatedFilterExpr(): void {
         var filteredDataSet: any[] = [];
-        var gridDataSource = this.DataGrid.instance.getDataSource();
+        var gridDataSource = this.DataControl.instance.getDataSource();
         gridDataSource.store().load().done(function (data: any) {
             filteredDataSet = data;
         });
@@ -190,7 +183,7 @@ export class AdditionalFilterButtonComponent implements OnInit, OnChanges {
             item[this.AdditionalFilterDataField + "FilterExpr"] = false;
         });
 
-        gridDataSource.load(); // not sure if needed
+        gridDataSource.load();
     }
 
     calculateFilterExpr(filterValue: any): void {
@@ -201,7 +194,7 @@ export class AdditionalFilterButtonComponent implements OnInit, OnChanges {
         }
 
         var filteredDataSet: any[] = [];
-        var gridDataSource = this.DataGrid.instance.getDataSource();
+        var gridDataSource = this.DataControl.instance.getDataSource();
         gridDataSource.store().load().done(function (data: any) {
             filteredDataSet = data;
         });
@@ -231,17 +224,14 @@ export class AdditionalFilterButtonComponent implements OnInit, OnChanges {
                 }
             }
         });
-
-        //Console.log("calculateFilterExpr", filteredDataSet);
     }
 
-
     prepareDataSourceForAdditionalFilter(): void {        
-        var gridDataSource = this.DataGrid.instance.getDataSource();                
+        var gridDataSource = this.DataControl.instance.getDataSource();                
         gridDataSource.filter(this.getCombinedButTheCurrentAdditionalFilterExpr());        
         var self = this;
         gridDataSource.store().load({
-            filter: this.DataGrid.instance.getCombinedFilter()
+            filter: this.DataControl.instance.getCombinedFilter()
         }).done(function (data: any) {            
             setTimeout(() => {
                 if (self.IsDataMultiValued) {
@@ -249,7 +239,8 @@ export class AdditionalFilterButtonComponent implements OnInit, OnChanges {
                 } else {
                     self.additionalFilterDataSource = self.getUniqueValuesOfKey(data, self.AdditionalFilterDataField);
                 }
-            }, 1000);
+                self._changeDetector.detectChanges(); // added change detector to suppress error partaining to changes in the selectedItemKeys
+            }, 500);
         });
     }
 
@@ -303,10 +294,13 @@ export class AdditionalFilterButtonComponent implements OnInit, OnChanges {
     };
 
     ngOnInit() {
+        //need to get the id of the datagrid or treelist or similar data control
+        // this id is going to be the key of the filter dictionary
+        this.dataControlId = $($($(this.DataControl).attr('element')).attr('nativeElement')).attr('id');
     }
 
-    ngOnChanges() {
-        this.setAdditionalFilterButtonStyle();
+    ngOnDestroy() {
+        this._additionalFilterService.removeFiltersFromDictionary(this.dataControlId);
     }
 
     onPopupShowing(e: any) {
