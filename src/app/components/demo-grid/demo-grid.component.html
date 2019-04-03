@@ -13,9 +13,15 @@
   [DataControl]="dataGrid">
     Last Name Filter Button
   </additional-filter-button>
+  <additional-filter-button
+  AdditionalFilterDataField="Role"
+  [DataControl]="dataGrid"
+  [IsDataMultiValued]=true>
+    Role Additional Filter
+  </additional-filter-button>
   <button type="button" class="btn btn-light btn-sm" (click)="clearFirstName()">Clear First Name Filter</button>
 </div>
-<dx-data-grid id="gridContainer"
+<dx-data-grid #gridContainer id="gridContainer"
     [dataSource]="datasource"
     [remoteOperations]="false"
     [allowColumnReordering]="true"
@@ -40,6 +46,40 @@
       <dxi-column dataField="Role" caption="Role">
           <dxo-header-filter [allowSearch]="true"></dxo-header-filter>
       </dxi-column>
+
+      <dxi-column dataField="Experience" caption="Experience">
+        <dxo-header-filter [allowSearch]="true"></dxo-header-filter>
+    </dxi-column>
+  </dx-data-grid>
+  <br>
+  <p> There are situations in real world project when we don't need to show the data on the grid but want our grid to filter on specific column 
+    which is not part of the grid, that is when this additional filter comes handy. Let's say, the requirement may be not to show the Role column
+    in the grid but users should be able to filter the data based on it. Below implementation is to demonstrate the solution for such requirement.
+  </p>
+  <additional-filter-button
+  AdditionalFilterDataField="Role"
+  [DataControl]="demoGrid"
+  [IsDataMultiValued]=true>
+    Role Additional Filter
+  </additional-filter-button>
+  
+<dx-data-grid #demoGrid id="demoGrid"
+    [dataSource]="datasource"
+    [remoteOperations]="false"
+    [allowColumnReordering]="true"
+    [rowAlternationEnabled]="true"
+    [showBorders]="true">
+
+    <dxo-header-filter [visible]="true"></dxo-header-filter>
+    <dxo-sorting mode="single"></dxo-sorting>
+
+        <dxi-column dataField="FirstName" caption="First Name">
+            <dxo-header-filter [allowSearch]="true"></dxo-header-filter>
+        </dxi-column>
+
+        <dxi-column dataField="LastName" caption="Last Name">
+            <dxo-header-filter [allowSearch]="true"></dxo-header-filter>
+        </dxi-column>
 
       <dxi-column dataField="Experience" caption="Experience">
         <dxo-header-filter [allowSearch]="true"></dxo-header-filter>
