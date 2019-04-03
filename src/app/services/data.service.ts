@@ -9,35 +9,35 @@ export class DataService {
       ID: 1,
       FirstName: 'Mike',
       LastName: 'Zinda',
-      Role: 'Architect',
+      Role: 'Architect,Senior Developer,Developer',
       Experience: '15 years'
     },
     { 
       ID: 2,
       FirstName: 'Mike',
       LastName: 'Wiz',
-      Role: 'DBA',
+      Role: 'DBA,SQL Developer',
       Experience: '23 years'
     },
     { 
       ID: 3,
       FirstName: 'Mike',
       LastName: 'Griff',
-      Role: 'Developer',
+      Role: 'Developer,Senior Developer',
       Experience: '10 years'
     },
     { 
       ID: 4,
       FirstName: 'Stacey',
       LastName: 'Barry',
-      Role: 'Business Analist',
+      Role: 'Business Analist,Scrum Master',
       Experience: '25 years'
     },
     { 
       ID: 5,
       FirstName: 'Doug',
       LastName: 'Weigler',
-      Role: 'Business Analist',
+      Role: 'Business Analist,Scrum Master',
       Experience: '18 years'
     },
     { 

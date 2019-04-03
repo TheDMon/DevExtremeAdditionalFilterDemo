@@ -10,7 +10,8 @@ import { DataService } from 'src/app/services/data.service';
 })
 export class DemoGridComponent implements OnInit {
   // get the instance of the datagrid which we want to bind with the additional filter
-  @ViewChild(DxDataGridComponent) dataGrid: DxDataGridComponent;
+  @ViewChild('gridContainer') dataGrid: DxDataGridComponent;
+  @ViewChild('demoGrid') demoGrid: DxDataGridComponent;
 
   // get the instance of the additional filter, if we want to programmitically set filter 
   @ViewChild('myFilter') addlFtr: AdditionalFilterButtonComponent;
