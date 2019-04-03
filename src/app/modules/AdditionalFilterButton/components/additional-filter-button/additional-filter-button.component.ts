@@ -21,6 +21,7 @@ export class AdditionalFilterButtonComponent implements OnInit, OnDestroy {
     @Output() onOKButtonClicked: EventEmitter<any> = new EventEmitter<any>();
     @Output() onFilterStateChanged: EventEmitter<boolean> = new EventEmitter<boolean>();
 
+    public filterButtonDivId: string;
     public dataControlId: string;
     public selectedItemKeys: any[] = [];
     public additionalFilterDataSource: any[];
@@ -98,7 +99,7 @@ export class AdditionalFilterButtonComponent implements OnInit, OnDestroy {
         this.MenuPosition = {
             my: "top",
             at: "bottom",
-            of: "#" + this.AdditionalFilterDataField,
+            of: "#" + this.filterButtonDivId,
             collision: "fit"
         };
     }
@@ -126,10 +127,10 @@ export class AdditionalFilterButtonComponent implements OnInit, OnDestroy {
 
     setAdditionalFilterButtonStyle(): void {
         if (this._additionalFilterService.getFiltersFromDictionary(this.dataControlId).find(item => { return item.dataField === this.AdditionalFilterDataField; }) != undefined) {
-            $("#" + this.AdditionalFilterDataField).find(".filter-icon").toggleClass("filter-active", true);
+            $("#" + this.filterButtonDivId).find(".filter-icon").toggleClass("filter-active", true);
             this.onFilterStateChanged.emit(true);
         } else {
-            $("#" + this.AdditionalFilterDataField).find(".filter-icon").toggleClass("filter-active", false);
+            $("#" + this.filterButtonDivId).find(".filter-icon").toggleClass("filter-active", false);
             this.onFilterStateChanged.emit(false);
         }
     }
@@ -297,6 +298,7 @@ export class AdditionalFilterButtonComponent implements OnInit, OnDestroy {
         //need to get the id of the datagrid or treelist or similar data control
         // this id is going to be the key of the filter dictionary
         this.dataControlId = $($($(this.DataControl).attr('element')).attr('nativeElement')).attr('id');
+        this.filterButtonDivId = "dv-" + this.dataControlId + "_" + this.AdditionalFilterDataField;
     }
 
     ngOnDestroy() {
