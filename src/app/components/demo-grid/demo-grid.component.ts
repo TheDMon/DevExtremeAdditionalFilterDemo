@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { DxDataGridComponent } from 'devextreme-angular';
-import { AdditionalFilterButtonComponent } from '../../modules/AddtionalFilterButton/components/additional-filter-button/additional-filter-button.component';
+import { AdditionalFilterButtonComponent } from '../../modules/AdditionalFilterButton/components/additional-filter-button/additional-filter-button.component';
 import { DataService } from 'src/app/services/data.service';
 
 @Component({
