@@ -1,0 +1,50 @@
+.mainContainer{
+    padding: 1%;
+}
+
+/* for dx-data-grid header styles */
+::ng-deep .dataGridStyle .dx-datagrid-headers .dx-datagrid-table .dx-row > td {
+    border-bottom: 1px solid #ddd;
+    background-color: #efefef;
+    color: darkblue;
+}
+
+::ng-deep .dataGridStyleTwo .dx-datagrid-headers .dx-datagrid-table .dx-row > td {
+    border-bottom: 1px solid #ddd;
+    background-color: #efefef;
+    color: darkblue;
+}
+
+::ng-deep .forecastStyle{
+    background-color: #A6C7E5;
+    padding: 7px;
+}
+
+::ng-deep .allocationSummaryStyle{
+    /* font-weight: normal; */
+    text-align: right;
+    padding: 7px;
+}
+
+::ng-deep .dataGridStyleTwo .dx-datagrid-headers .dx-datagrid-table .dx-row .forecastCell {
+    background-color:#A6C7E5;
+}
+
+/* .dx-datagrid-summary-item .dx-datagrid-text-content .forecastStyle{
+    background-color: beige;
+    color:red;
+} */
+
+::ng-deep .dx-datagrid .dx-datagrid-total-footer > .dx-datagrid-content{
+    padding: 0px;
+}
+
+/* below css rule is to get rid of excess padding from footer summary cells */
+::ng-deep .dataGridStyle .dx-datagrid .dx-datagrid-total-footer .dx-row > td {
+    padding: 0px;
+}
+
+::ng-deep .allocationControlStyle .dx-texteditor-input { 
+    text-align: center;
+    /* background-color: beige; */
+}

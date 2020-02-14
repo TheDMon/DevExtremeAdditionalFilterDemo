@@ -5,23 +5,26 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AdditionalFilterButtonModule } from './modules/AdditionalFilterButton/additional-filter-button.module';
 import { DemoGridComponent } from './components/demo-grid/demo-grid.component';
-import { DxDataGridModule, DxTreeListModule} from 'devextreme-angular';
+import { DxDataGridModule, DxTreeListModule, DxNumberBoxModule } from 'devextreme-angular';
 import { TreeListComponent } from './components/tree-list/tree-list.component';
 import { AdditionalFilterService } from './modules/AdditionalFilterButton/services/additional-filter.service';
+import { ResourceAllocationComponent } from './components/resource-allocation/resource-allocation.component';
 
 
 @NgModule({
   declarations: [
     AppComponent,
     DemoGridComponent,
-    TreeListComponent
+    TreeListComponent,
+    ResourceAllocationComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     AdditionalFilterButtonModule,
     DxDataGridModule,
-    DxTreeListModule
+    DxTreeListModule,
+    DxNumberBoxModule
   ],
   providers: [ ],
   bootstrap: [AppComponent]

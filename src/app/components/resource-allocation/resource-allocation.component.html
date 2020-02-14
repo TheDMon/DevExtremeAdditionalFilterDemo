@@ -1,0 +1,207 @@
+<div class="mainContainer">
+
+<dx-data-grid #allocationGrid id="allocationGrid" class="dataGridStyle"
+    [dataSource]="allocation"
+    [remoteOperations]="false"
+    [allowColumnReordering]="true"
+    [rowAlternationEnabled]="true"
+    [wordWrapEnabled]="true"
+    [showBorders]="true"
+    (onCellPrepared)="onAllocationCellPrepared($event)">
+
+    <dxo-header-filter [visible]="true"></dxo-header-filter>
+    <dxo-sorting mode="single"></dxo-sorting>
+    <dxo-scrolling mode="virtual" showScrollbar='always'></dxo-scrolling>
+
+        <dxi-column dataField="WWID" caption="WWID" width='150' dataType="string" [fixed]="true">
+            <dxo-header-filter [allowSearch]="true"></dxo-header-filter>
+        </dxi-column>
+
+        <dxi-column dataField="ContractType" caption="Contract Type" width='100' dataType="string" [fixed]="true">
+            <dxo-header-filter [allowSearch]="true"></dxo-header-filter>
+        </dxi-column>
+
+      <dxi-column dataField="Department" caption="Department" width='200' dataType="string" [fixed]="true">
+        <dxo-header-filter [allowSearch]="true"></dxo-header-filter>
+    </dxi-column>
+    <dxi-column dataField="CostCenter" caption="Cost Center" width='100' dataType="string" [fixed]="true">
+      <dxo-header-filter [allowSearch]="true"></dxo-header-filter>
+  </dxi-column>
+  <dxi-column dataField="Comment" caption="Comment" width='300' dataType="number" [fixed]="true" alignment="left">
+    <dxo-header-filter [allowSearch]="true"></dxo-header-filter>
+</dxi-column>
+<div *ngFor="let year of years">
+    <dxi-column dataType="number" alignment="center"
+            caption="{{ year }}" [allowFiltering]="false"
+            [allowSorting]="false">
+            <div *ngFor="let monthIndex of monthIndices[year]">
+                <dxi-column dataField="{{monthNames[monthIndex]}}_{{year}}" caption="{{monthNames[monthIndex]}}" 
+                            width='100' dataType="number" alignment="center" [allowFiltering]="false" 
+                            cellTemplate="allocationCellTemplate">
+                </dxi-column>
+            </div>
+  </dxi-column>
+
+  <div *dxTemplate="let info of 'allocationCellTemplate'">
+      <div style="text-align: center;">
+        <dx-number-box  [disabled]="!isAllocationAllowed(info)"
+                        [min]="0" 
+                        [max]="9007199254740991" 
+                        value="{{ info.value }}" 
+                        class="allocationControlStyle"
+                        step="0.1" 
+                        type="number">
+      </dx-number-box>
+    </div>
+  </div>
+</div>
+
+
+<dxo-summary>
+            <dxi-total-item column="Comment" dataType="number" 
+                            cssClass="allocationSummaryStyle"
+                            allignment="right"
+                            displayFormat="Total Allocation:">
+            </dxi-total-item>
+            <dxi-total-item column="Comment"
+                            allignment="right"
+                            cssClass="forecastStyle"
+                            displayFormat="Overall Forecast:">
+            </dxi-total-item>
+            
+            <div *ngFor="let year of years">
+              <div *ngFor="let monthIndex of monthIndices[year]">
+                  <dxi-total-item column="{{monthNames[monthIndex]}}_{{year}}"
+                  cssClass="allocationSummaryStyle"
+                  summaryType="sum"
+                  [valueFormat]="fixedDecimal"
+                  displayFormat="{0}">
+                </dxi-total-item>
+              <dxi-total-item column="{{monthNames[monthIndex]}}_{{year}}" 
+                summaryType="sum"
+                displayFormat="{{monthNames[monthIndex]}}_{{year}}"
+                cssClass="forecastStyle"
+                  [customizeText]="displayForecastForPeriod">
+              </dxi-total-item>
+              </div>
+            </div>
+</dxo-summary>
+
+  </dx-data-grid>
+
+
+
+
+  <!-- Options 2 ----------------->
+<br>
+<br>
+<br>
+<br>
+<br>
+
+
+<dx-data-grid #allocationGrid id="allocationGridTwo" class="dataGridStyleTwo"
+  [dataSource]="allocation"
+  [remoteOperations]="false"
+  [allowColumnReordering]="true"
+  [rowAlternationEnabled]="true"
+  [wordWrapEnabled]="true"
+  [showBorders]="true"
+  (onCellPrepared)="onCellPreparedOptionTwo($event)">
+
+  <dxo-header-filter [visible]="true"></dxo-header-filter>
+  <dxo-sorting mode="single"></dxo-sorting>
+  <dxo-scrolling mode="virtual" showScrollbar='always'></dxo-scrolling>
+
+      <dxi-column dataField="WWID" caption="WWID" width='150' dataType="string" [fixed]="true">
+          <dxo-header-filter [allowSearch]="true"></dxo-header-filter>
+      </dxi-column>
+
+      <dxi-column dataField="ContractType" caption="Contract Type" width='100' dataType="string" [fixed]="true">
+          <dxo-header-filter [allowSearch]="true"></dxo-header-filter>
+      </dxi-column>
+
+    <dxi-column dataField="Department" caption="Department" width='200' dataType="string" [fixed]="true">
+      <dxo-header-filter [allowSearch]="true"></dxo-header-filter>
+  </dxi-column>
+  <dxi-column dataField="CostCenter" caption="Cost Center" width='100' dataType="string" [fixed]="true">
+    <dxo-header-filter [allowSearch]="true"></dxo-header-filter>
+  </dxi-column>
+  <dxi-column caption="Comment" dataField="Comment" width="300" dataType="number" [allowFiltering]="true" [fixed]="true" alignment="left">
+      <dxo-header-filter [allowSearch]="true"></dxo-header-filter>
+      <!-- <dxi-column caption="Overall Forecast" width="300" alignment="right" [allowFiltering]="true">
+        </dxi-column> -->
+    
+  </dxi-column>
+  <dxi-column caption="Year:" alignment="right" [fixed]="true">
+      <dxi-column caption="Month:" alignment="right">
+          <dxi-column caption="Forecast:" dataField="Forecast" cssClass="forecastCell" width='100' dataType="number" [allowFiltering]="false" [fixed]="true">
+
+          </dxi-column>
+      </dxi-column>
+  </dxi-column>
+
+  <div *ngFor="let year of years">
+      <dxi-column dataType="number" alignment="center"
+                            caption="{{ year }}" [allowFiltering]="false"
+                            [allowSorting]="false">
+
+                    <div *ngFor="let monthIndex of monthIndices[year]">
+                        <dxi-column caption="{{ monthNames[monthIndex]}}" width='100' dataType="number" alignment="center" [allowFiltering]="false">
+                            <dxi-column dataField="{{monthNames[monthIndex]}}_{{year}}" cssClass="forecastCell" width='100' dataType="number" alignment="center" [allowFiltering]="false" 
+                            headerCellTemplate="forecastHeaderTemplate"
+                            cellTemplate="allocationCellTemplate">
+                            </dxi-column>
+                        </dxi-column>
+                    </div>
+
+                    <div *dxTemplate="let info of 'forecastHeaderTemplate'">
+                        <div ngbTooltip="Forecast">{{ getForeCastForPeriod(info.column.dataField) }}</div> 
+                    </div>
+                    <div *dxTemplate="let info of 'allocationCellTemplate'">
+                        <div>
+                          <dx-number-box  [disabled]="!isAllocationAllowed(info)"
+                                          class="allocationControlStyle"
+                                          [min]="0" 
+                                          [max]="9007199254740991" 
+                                          value="{{ info.value }}"
+                                          step="0.1" 
+                                          type="number">
+                        </dx-number-box>
+                      </div> 
+                    </div>
+      </dxi-column>
+  </div>
+
+  <dxo-summary>
+            <dxi-total-item column="Forecast"
+                            allignment="right"
+                            displayFormat="Allocation:">
+            </dxi-total-item>
+            <dxi-total-item column="Forecast"
+                            allignment="right"
+                            displayFormat="Remainder:">
+            </dxi-total-item>
+
+            <div *ngFor="let year of years">
+              <div *ngFor="let monthIndex of monthIndices[year]">
+                  <dxi-total-item column="{{monthNames[monthIndex]}}_{{year}}" 
+                                    summaryType="sum"
+                                    [valueFormat]="fixedDecimal"
+                                    displayFormat="{0}">
+                  </dxi-total-item>
+                  <dxi-total-item column="{{monthNames[monthIndex]}}_{{year}}" 
+                                    displayFormat="{{monthNames[monthIndex]}}_{{year}}"
+                                    cssClass="remainderStyle"
+                                    [customizeText]="calculateRemainder" 
+                                    summaryType="sum"
+                                    [valueFormat]="fixedDecimal">
+                  </dxi-total-item>
+              </div>
+            </div>
+  </dxo-summary>
+</dx-data-grid>
+
+
+
+</div>
